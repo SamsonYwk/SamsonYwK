@@ -186,7 +186,9 @@ class VRButton{
         if (!ignorePadding) element.style.padding = '12px 6px';
         element.style.border = '1px solid #fff';
         element.style.borderRadius = '4px';
-        element.style.background = (active) ? 'rgba(20,150,80,1)' : 'rgba(180,20,20,1)';
+        element.style.background = active 
+            ? 'linear-gradient(45deg, #1a3c6b, #4a90e2)' // Blue gradient for active
+            : 'linear-gradient(45deg, #a11717, #ff5555)'; // Red gradient for inactive
         element.style.color = '#fff';
         element.style.font = `normal ${fontSize}px sans-serif`;
         element.style.textAlign = 'center';
