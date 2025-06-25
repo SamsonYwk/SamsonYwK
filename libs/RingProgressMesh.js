@@ -14,38 +14,28 @@ uniform float uProgress;
 
 varying vec2 vUv;
 
-// Hexagon distance function
-float hexagon(vec2 pt, vec2 center, float radius) {
+float circle(vec2 pt, vec2 center, float radius){
   pt -= center;
-  pt = abs(pt);
-  float hex = max(pt.x * 0.866025 + pt.y * 0.5, pt.y); // 0.866025 = sqrt(3)/2
-  return step(hex, radius);
+  float len = length(pt);
+  return (len<radius) ? 1.0 : 0.0;
 }
 
-// Hexagonal arc for progress
-float hexArc(vec2 pt, vec2 center, float radius, float percent) {
+float arc(vec2 pt, vec2 center, float radius, float percent){
   float result = 0.0;
-  pt -= center;
-  
-  // Transform to polar-like coordinates for hexagon
-  float angle = atan(pt.y, pt.x);
-  float len = length(pt);
-  float innerRadius = radius * 0.5;
-  
-  // Normalize angle to [0, PI2]
-  angle = mod(angle + PI2, PI2);
-  percent = clamp(percent, 0.0, 1.0);
-  float arcAngle = PI2 * percent;
-  
-  // Hexagon distance for outer and inner boundaries
-  float outerHex = max(abs(pt.x) * 0.866025 + abs(pt.y) * 0.5, abs(pt.y));
-  float innerHex = outerHex * 0.5; // Scale for inner hexagon
-  
-  if (outerHex < radius && outerHex > innerRadius && angle < arcAngle) {
+
+  vec2 d = pt - center;
+  float len = length(d);
+  float halfRadius = radius * 0.5;
+
+  if ( len<radius && len>halfRadius){
+    percent = clamp(percent, 0.0, 1.0);
+    float arcAngle = PI2 * percent;
+
+    float angle = mod( arcAngle - atan(d.y, d.x), PI2);
     float edgeWidth = radius * 0.05;
-    result = smoothstep(innerRadius, innerRadius + edgeWidth, outerHex) - smoothstep(radius - edgeWidth, radius, outerHex);
+    result = (angle<arcAngle) ? smoothstep(halfRadius, halfRadius + edgeWidth, len) - smoothstep(radius-edgeWidth, radius, len) : 0.0;
   }
-  
+
   return result;
 }
 
@@ -55,8 +45,8 @@ void main (void)
   vec4 arcColor = vec4(0.0, 0.0, 1.0, 1.0);
   vec2 center = vec2(0.5);
   vec4 color = vec4(0.0);
-  color += hexagon(vUv, center, 0.5) * bgColor;
-  color += hexArc(vUv, center, 0.4, uProgress) * arcColor;
+  color += circle(vUv, center, 0.5) * bgColor;
+  color += arc(vUv, center, 0.4, uProgress) * arcColor;
   gl_FragColor = color; 
 }`
 
